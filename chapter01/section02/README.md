@@ -331,41 +331,79 @@ Team team = member.getTeam(); // 객체 그래프 탐색
 
 ## 1.2.3 객체 그래프 탐색
 
-객체는 참조를 사용하여 연관된 다른 객체를 계속해서 찾아 나갈 수 있다. 이를 **객체 그래프 탐색**이라 한다.
+객체에서 회원이 소속된 팀을 조회할 때는 다음처럼 참조를 사용해서 연관된 팀을 찾으면 되는데, 이것을 **객체 그래프 탐색(Object Graph Traversal)**이라 한다.
+
+```java
+// member가 참조하는 team을 조회
+Team team = member.getTeam();
+```
+
+객체 연관관계가 다음 그림처럼 설계되어 있다고 가정해보자.
+
+> **그림 1.5 객체 연관관계**
+> ![img.png](https://img1.daumcdn.net/thumb/R800x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fd1GyoZ%2FbtriAHioz5n%2Fzk1asj6KXOcjy2Klu0E2kK%2Fimg.png)
+
+다음은 객체 그래프를 탐색하는 코드다.
 
 ```java
 member.getOrder().getOrderItem() ... // 자유로운 객체 그래프 탐색
 ```
 
-> **그림 1.5** 객체 연관관계
->
-> ![객체 연관관계 다이어그램](https://img1.daumcdn.net/thumb/R800x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fd1GyoZ%2FbtriAHioz5n%2Fzk1asj6KXOcjy2Klu0E2kK%2Fimg.png)
+객체는 마음껏 객체 그래프를 탐색할 수 있어야 한다. 그런데 과연 마음껏 객체 그래프를 탐색할 수 있을까?
 
-만약 SQL을 직접 다룬다면, 처음 실행한 SQL의 범위에 따라 탐색할 수 있는 객체 그래프가 제한된다.
+예를 들어 `MemberDAO`에서 `member` 객체를 조회할 때 이런 SQL을 실행해서 회원과 팀에 대한 데이터만 조회했다고 가정해보자.
+
+```sql
+SELECT M.*, T.*
+FROM MEMBER M
+JOIN TEAM T ON M.TEAM_ID = T.TEAM_ID
+```
+
+이 경우 `member.getTeam()`은 성공하지만, 다음처럼 다른 객체 그래프는 데이터가 없으므로 탐색할 수 없다.
 
 ```java
-// 예제 1.11: 회원 조회 비즈니스 로직
+member.getOrder()   // null을 반환
+```
+
+> **SQL을 직접 다루면 처음 실행하는 SQL에 따라 객체 그래프를 어디까지 탐색할 수 있는지 정해진다.** 이것은 객체지향 개발자에겐 너무 큰 제약이다.
+
+왜냐하면 비즈니스 로직에 따라 사용하는 객체 그래프가 다른데, 언제 끊어질지 모를 객체 그래프를 함부로 탐색할 수는 없기 때문이다. 다음 예제를 보자.
+
+> **예제 1.1 회원 조회 비즈니스 로직**
+```java
 class MemberService {
+    ...
     public void process() {
         Member member = memberDAO.find(memberId);
         member.getTeam();   // member->team 객체 그래프 탐색이 가능한가?
-        member.getOrder().getDelivery();   // ???
+        member.getOrder().getDelivery();   // 이 탐색은 성공할까?
     }
 }
 ```
 
-위 코드만 보고는 `member.getOrder()`가 가능한지 예측할 수 없다. 결국 DAO의 `find()` 메소드에 작성된 SQL을 직접 확인해야만 한다. 이는 **엔티티가 SQL에 논리적으로 종속**되어 발생하는 문제다.
+`memberDAO`를 통해 `member` 객체를 조회했지만, 이 객체와 연관된 `Team`, `Order`, `Delivery` 방향으로 객체 그래프 탐색이 가능한지 아닌지는 이 코드만 보고는 전혀 예측할 수 없다.
+
+결국 어디까지 객체 그래프 탐색이 가능한지 알아보려면 데이터 접근 계층인 **DAO를 열어서 SQL을 직접 확인해야 한다.**
+
+이것은 **엔티티가 SQL에 논리적으로 종속**되어서 발생하는 문제다.
+
+JPA는 이 문제를 어떻게 해결할까?
 
 ### JPA와 객체 그래프 탐색
 
-JPA를 사용하면 객체 그래프를 제약 없이 자유롭게 탐색할 수 있다.
+JPA를 사용하면 객체 그래프를 마음껏 탐색할 수 있다.
 
-> 이 기능은 연관된 객체를 실제 사용하는 시점까지 데이터베이스 조회를 미루기 때문에 **지연 로딩(Lazy Loading)**이라 한다.
+```java
+member.getOrder().getOrderItem()... // 자유로운 객체 그래프 탐색
+```
 
-JPA는 지연 로딩을 개발자에게 투명하게 처리한다. `getOrder()` 메소드에 JPA 관련 코드가 전혀 없어도 된다.
+JPA는 연관된 객체를 사용하는 시점에 적절한 `SELECT` SQL을 실행한다. 따라서 JPA를 사용하면 연관된 객체를 신뢰하고 마음껏 조회할 수 있다.
 
-> **예제 1.12** 투명한 엔티티
+이 기능은 실제 객체를 사용하는 시점까지 데이터베이스 조회를 미룬다고 해서 **지연 로딩(Lazy Loading)**이라 한다.
 
+이런 기능을 사용하기 위해 객체에 JPA 관련 코드를 심어야 할까? 그렇지 않다. JPA는 지연 로딩을 **투명하게(Transparent)** 처리한다. `Member` 객체의 `getOrder()` 메소드를 보면 JPA와 관련된 코드가 전혀 없다.
+
+> **예제 1.12 투명한 엔티티**
 ```java
 class Member {
     private Order order;
@@ -376,22 +414,32 @@ class Member {
 }
 ```
 
-> **예제 1.13** 지연 로딩 사용
+다음은 지연 로딩을 사용하는 코드다. 마지막 줄의 `order.getOrderDate()`처럼 **실제 `Order` 객체를 사용하는 시점**에 JPA는 데이터베이스에서 `ORDER` 테이블을 조회한다.
 
+> **예제 1.13 지연 로딩 사용**
 ```java
-// 처음 조회 시점에 SELECT MEMBER SQL 실행
+// 1. 처음 조회 시점: MEMBER 테이블만 조회하는 SQL 실행
 Member member = jpa.find(Member.class, memberId);
 
+// 2. member.getOrder() 호출 시점: 아직 SQL 실행 안 함
 Order order = member.getOrder();
-order.getOrderDate();   // Order를 실제 사용하는 시점에 SELECT ORDER SQL 실행
+
+// 3. order.getOrderDate() 호출 시점 (실제 데이터 사용):
+//    이때 ORDER를 조회하는 SELECT SQL이 실행됨
+order.getOrderDate();
 ```
 
-만약 Member와 Order를 항상 함께 사용한다면, 간단한 설정 변경만으로 Member를 조회할 때 연관된 Order도 함께 조회(`즉시 로딩`, `Eager Loading`)하도록 JPA에 지시할 수 있다. 이 경우 JPA는 조인 SQL을 사용한다.
+#### 즉시 로딩 (Eager Loading)
+`Member`를 사용할 때마다 `Order`를 함께 사용한다면, 이렇게 한 테이블씩 조회하는 것보다는 `Member`를 조회하는 시점에 SQL `JOIN`을 사용해서 `Member`와 `Order`를 함께 조회하는 것이 더 효과적일 수 있다.
+
+JPA는 연관된 객체를 즉시 함께 조회할지(`즉시 로딩`), 아니면 실제 사용되는 시점에 지연해서 조회할지(`지연 로딩`)를 **간단한 설정으로 정의**할 수 있다.
+
+만약 `Member`와 `Order`를 즉시 함께 조회하도록 설정하면, JPA는 `Member`를 조회할 때 다음 SQL을 실행해서 연관된 `Order`도 함께 조회한다.
 
 ```sql
 SELECT M.*, O.*
-  FROM MEMBER M
-  JOIN ORDERS O ON M.MEMBER_ID = O.MEMBER_ID
+FROM MEMBER M
+JOIN "ORDER" O ON M.MEMBER_ID = O.MEMBER_ID
 ```
 
 ---
