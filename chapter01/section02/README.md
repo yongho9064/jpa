@@ -341,6 +341,7 @@ Team team = member.getTeam();
 객체 연관관계가 다음 그림처럼 설계되어 있다고 가정해보자.
 
 > **그림 1.5 객체 연관관계**
+> 
 > ![img.png](https://img1.daumcdn.net/thumb/R800x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fd1GyoZ%2FbtriAHioz5n%2Fzk1asj6KXOcjy2Klu0E2kK%2Fimg.png)
 
 다음은 객체 그래프를 탐색하는 코드다.
