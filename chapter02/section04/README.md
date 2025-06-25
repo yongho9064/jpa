@@ -116,4 +116,4 @@ JPA는 매핑 어노테이션을 분석해서 어떤 객체가 어떤 테이블�
 
 > **참고**: JPA 어노테이션의 패키지는 `javax.persistence`이다.
 
-[다음: 2.5 persistence.xml 설정](chapter02/section05/README.md)
+[다음: 2.5 persistence.xml 설정](https://github.com/yongho9064/jpa/blob/main/chapter02/section05/README.md)
