@@ -85,7 +85,7 @@ em.persist(member);
 
 > **그림 3.3 `em.persist()` 호출 전, 비영속 상태**
 >
-> ![비영속 상태](https://www.notion.so/image/https%3A%2F%2Fprod-files-secure.s3.us-west-2.amazonaws.com%2F026aa827-67bf-4a64-ae2a-7f7a700a3acb%2Fc1e62f38-22e1-4b59-bad7-0a73f49f11f4%2FUntitled.png?table=block&id=acd96a96-c807-4b48-b6cc-df15c077f42d&cache=v2)
+> ![비영속 상태](https://velog.velcdn.com/images/dongvelop/post/b1f30d4e-7032-4788-8375-8488026f77c3/image.png)
 
 ### 2. 영속 (Managed)
 
@@ -95,7 +95,7 @@ em.persist(member);
 
 > **그림 3.4 `em.persist()` 호출 후, 영속 상태**
 >
-> ![영속 상태](https://www.notion.so/image/https%3A%2F%2Fprod-files-secure.s3.us-west-2.amazonaws.com%2F026aa827-67bf-4a64-ae2a-7f7a700a3acb%2F24eab2eb-a528-46f2-a063-2e9454c9441d%2FUntitled.png?table=block&id=cb184c13-fbd2-40d3-95c7-cd6da3135f62&cache=v2)
+> ![영속 상태](https://velog.velcdn.com/images/dongvelop/post/4488949b-f0de-441a-b3d9-e76214e24c7e/image.png)
 
 ### 3. 준영속 (Detached)
 
