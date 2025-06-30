@@ -34,9 +34,11 @@ public void testDetached() {
 `em.detach(member)`를 호출하면 영속성 컨텍스트에게 더는 해당 엔티티를 관리하지 말라고 지시하는 것이다. 이 메소드를 호출하는 순간 1차 캐시부터 쓰기 지연 SQL 저장소까지, 해당 엔티티를 관리하기 위한 모든 정보가 제거된다.
 
 *그림 3.12 detach 실행 전*
+
 ![detach 실행 전](https://blog.kakaocdn.net/dna/bNWKSf/btsdHQcrztt/AAAAAAAAAAAAAAAAAAAAABqE8rbosdxctU0Y9eSrLBSNgKJYUNSUeJWaWatwxzYn/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&expires=1751295599&allow_ip=&allow_referer=&signature=%2F%2BIXidrDuixPbadiu0rNUo%2BkCIw%3D)
 
 *그림 3.13 detach 실행 후*
+
 ![detach 실행 후](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbF5jRY%2FbtsdGkL8t76%2FAAAAAAAAAAAAAAAAAAAAABiIkHFk8nM6h5JhLoiuXMA5dl2m4JXzFXIo_7I9ve09%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1751295599%26allow_ip%3D%26allow_referer%3D%26signature%3DXZh7ZM%252BUNYlQTnRcJ3sHnCQzn1c%253D)
 
 이처럼 **영속 상태였다가 더는 영속성 컨텍스트가 관리하지 않는 상태를 준영속 상태**라 한다. 준영속 상태이므로 영속성 컨텍스트가 지원하는 어떤 기능도 동작하지 않는다. 심지어 쓰기 지연 SQL 저장소의 `INSERT` SQL도 제거되어 데이터베이스에 저장되지도 않는다.
