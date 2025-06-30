@@ -57,9 +57,11 @@ member.setUsername("changeName");
 ```
 
 *그림 3.14 영속성 컨텍스트 초기화 전*
+
 ![영속성 컨텍스트 초기화 전](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbemQQF%2FbtsdHQp3OtV%2FAAAAAAAAAAAAAAAAAAAAADrzRvwpObZV_IoeOZE4eQq4a7fjaondXwrKw3fgIQa2%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1751295599%26allow_ip%3D%26allow_referer%3D%26signature%3DSa4OxuaLYoHbxr2P1kbka4j5vP4%253D)
 
 *그림 3.15 영속성 컨텍스트 초기화 후*
+
 ![영속성 컨텍스트 초기화 후](https://velog.velcdn.com/images/dongvelop/post/86e36ee4-273e-4853-8a46-64b444b69ce1/image.png)
 
 위 그림을 비교해서 보면, 영속성 컨텍스트에 있는 모든 것이 초기화되었다. 이는 영속성 컨텍스트를 제거하고 새로 만든 것과 같다. 이제 `memberA`, `memberB`는 영속성 컨텍스트가 관리하지 않으므로 준영속 상태다.
@@ -93,9 +95,11 @@ public void closeEntityManager() {
 ```
 
 *그림 3.16 영속성 컨텍스트 제거 전*
+
 ![영속성 컨텍스트 제거 전](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FbemQQF%2FbtsdHQp3OtV%2FAAAAAAAAAAAAAAAAAAAAADrzRvwpObZV_IoeOZE4eQq4a7fjaondXwrKw3fgIQa2%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1751295599%26allow_ip%3D%26allow_referer%3D%26signature%3DSa4OxuaLYoHbxr2P1kbka4j5vP4%253D)
 
 *그림 3.17 영속성 컨텍스트 제거 후*
+
 ![영속성 컨텍스트 제거 후](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdna%2FuWtd7%2FbtsdFf5quoj%2FAAAAAAAAAAAAAAAAAAAAACpui3SAW1yiG4BOt-RhmK7LFCeuQwAPuUovjgiiBTFZ%2Fimg.png%3Fcredential%3DyqXZFxpELC7KVnFOS48ylbz2pIh7yKj8%26expires%3D1751295599%26allow_ip%3D%26allow_referer%3D%26signature%3Ds2TBQp4MrVjW%252FDUS0RLrQ8I%252BVGM%253D)
 
 영속성 컨텍스트가 종료되어 `memberA`, `memberB`는 더는 관리되지 않는다.
