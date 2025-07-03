@@ -216,3 +216,141 @@ create sequence [sequenceName] start with [initialValue] increment by [allocatio
 > ```
 
 ### 4.6.4 TABLE 전략
+TABLE 전략은 키 생성 전용 테이블을 하나 만들고 여기에 이름과 값으로 사용할 컬럼을 만들어 데이터베이스 시퀀스를 흉내 내는 전략이다. 이 전략은 테이블을 사용하므로 모든 데이터베이스에 적용할 수 있다.
+
+TABLE 전략을 사용하려면 먼저 아래 예제처럼 키 생성 용도로 사용할 테이블을 만들어야 한다.
+
+#### 예제: TABLE 전략 키 생성 DDL
+```sql
+create table MY_SEQUENCES (
+    sequence_name varchar(255) not null,
+    next_val bigint,
+    primary key (sequence_name)
+);
+```
+`sequence_name` 컬럼을 시퀀스 이름으로 사용하고 `next_val` 컬럼을 시퀀스 값으로 사용한다. 참고로 컬럼의 이름은 변경할 수 있는데 여기서 사용한 것이 기본값이다.
+
+#### 예제: TABLE 전략 매핑 코드
+```java
+@Entity
+@TableGenerator(
+    name = "BOARD_SEQ_GENERATOR",
+    table = "MY_SEQUENCES",
+    pkColumnValue = "BOARD_SEQ", 
+    allocationSize = 1)
+public class Board {
+    @Id
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "BOARD_SEQ_GENERATOR")
+    private Long id;
+    ...
+}
+```
+위 코드를 보면, 먼저 `@TableGenerator`를 사용해서 테이블 키 생성기를 등록한다. 여기서 `BOARD_SEQ_GENERATOR`라는 이름의 테이블 키 생성기를 등록하고, 방금 생성한 `MY_SEQUENCES` 테이블을 키 생성용 테이블로 매핑했다.
+
+다음으로 `TABLE` 전략을 사용하기 위해 `GenerationType.TABLE`을 선택했다. 그리고 `@GeneratedValue.generator`에 방금 만든 테이블 키 생성기를 지정했다. 이제부터 `id` 식별자 값은 `BOARD_SEQ_GENERATOR` 테이블 키 생성기가 할당한다.
+
+#### 예제: TABLE 전략 매핑 사용 코드
+```java
+private static void logic(EntityManager em) {
+   Board board = new Board();
+   em.persist(board);
+   System.out.println("board.getId() = " + board.getId());  // board.id = 1
+}
+```
+TABLE 전략은 시퀀스 대신에 테이블을 사용한다는 것만 제외하면 SEQUENCE 전략과 내부 동작 방식이 같다.
+
+아래 `MY_SEQUENCES` 테이블을 보면 `@TableGenerator.pkColumnValue`에서 지정한 `BOARD_SEQ`가 `sequence_name`의 값으로 추가된 것을 확인할 수 있다. 이제 키 생성기를 사용할 때마다 `next_val` 컬럼 값이 증가한다.
+
+#### MY_SEQUENCES 테이블 예시
+
+| sequence_name | next_val |
+|:--------------|:---------|
+| BOARD_SEQ     | 2        |
+| MEMBER_SEQ    | 10       |
+| PRODUCT_SEQ   | 50       |
+| ...           | ...      |
+
+> **참고**
+>
+> `MY_SEQUENCES` 테이블에 값이 없으면 JPA가 값을 INSERT하면서 초기화하므로 값을 미리 넣어둘 필요는 없다.
+
+### @TableGenerator 속성
+
+| 속성 | 설명 | 기본값 |
+|:---|:---|:---|
+| `name` | 식별자 생성기 이름 | **필수** |
+| `table` | 키 생성 테이블명 | `hibernate_sequences` |
+| `pkColumnName` | 시퀀스 컬럼명 | `sequence_name` |
+| `valueColumnName` | 시퀀스 값 컬럼명 | `next_val` |
+| `pkColumnValue` | 키로 사용할 값 이름 | 엔티티 이름 |
+| `initialValue` | 초기 값, 마지막으로 생성된 값이 기준 | 0 |
+| `allocationSize` | 시퀀스 한 번 호출에 증가하는 수 (성능 최적화에 사용됨) | 50 |
+| `catalog`, `schema` | 데이터베이스 catalog, schema 이름 | |
+| `uniqueConstraints(DDL)`| 유니크 제약 조건을 지정할 수 있다. | |
+
+JPA 표준 명세에서는 `table`, `pkColumnName`, `valueColumnName`의 기본값을 JPA 구현체가 정의하도록 했다. 위에서 설명한 기본값은 하이버네이트 기준이다.
+
+> **참고: TABLE 전략과 최적화**
+>
+> TABLE 전략은 값을 조회하면서 SELECT 쿼리를 사용하고 다음 값으로 증가시키기 위해 UPDATE 쿼리를 사용한다. 이 전략은 SEQUENCE 전략과 비교해서 데이터베이스와 한 번 더 통신하는 단점이 있다.
+>
+> TABLE 전략을 최적화하려면 `@TableGenerator.allocationSize`를 사용하면 된다. 이 값을 사용해서 최적화하는 방법은 SEQUENCE 전략과 같다.
+
+---
+
+### 4.6.5 AUTO 전략
+데이터베이스의 종류도 많고 기본 키를 만드는 방법도 다양하다. `GenerationType.AUTO`는 선택한 데이터베이스 방언에 따라 IDENTITY, SEQUENCE, TABLE 전략 중 하나를 자동으로 선택한다. 예를 들어, 오라클은 SEQUENCE 전략을 사용하고 MySQL은 IDENTITY 전략을 사용한다.
+
+#### AUTO 전략 매핑 코드
+```java
+@Entity
+public class Board {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    ...
+}
+```
+AUTO 전략의 장점은 데이터베이스를 변경해도 코드를 수정할 필요가 없다는 것이다. 특히 키 생성 전략이 아직 확정되지 않은 개발 초기 단계나 프로토타입 개발 시 편리하게 사용할 수 있다.
+
+---
+
+### 4.6.6 기본 키 매핑 정리
+영속성 컨텍스트는 엔티티를 식별자 값으로 구분하므로 엔티티를 영속 상태로 만들려면 식별자 값이 반드시 있어야 한다. `em.persist()`를 호출한 직후에 발생하는 일은 식별자 할당 전략별로 정리하면 다음과 같다.
+
+*   **직접 할당**: `em.persist()`를 호출하기 전에 애플리케이션에서 직접 식별자 값을 할당해야 한다. 만약 식별자 값이 없으면 예외가 발생한다.
+*   **SEQUENCE**: 데이터베이스 시퀀스에서 식별자 값을 획득한 후 영속성 컨텍스트에 저장한다.
+*   **TABLE**: 데이터베이스 시퀀스 생성용 테이블에서 식별자 값을 획득한 후 영속성 컨텍스트에 저장한다.
+*   **IDENTITY**: 데이터베이스에 엔티티를 저장해서 식별자 값을 획득한 후 영속성 컨텍스트에 저장한다(IDENTITY 전략은 데이터를 저장해야 식별자 값을 획득할 수 있다).
+
+
+> **참고: 권장하는 식별자 선택 전략**
+>
+> 데이터베이스 기본 키는 다음 3가지 조건을 모두 만족해야 한다.
+> 1.  `null` 값은 허용하지 않는다.
+> 2.  유일해야 한다.
+> 3.  변해선 안 된다.
+>
+> 테이블의 기본 키를 선택하는 전략은 크게 2가지가 있다.
+> *   **자연 키(Natural Key)**
+>     *   비즈니스에 의미가 있는 키
+>     *   예: 주민등록번호, 이메일 주소, 전화번호 등
+> *   **대리 키(Surrogate Key)**
+>     *   비즈니스와 관련 없는 임의로 만들어진 키, 대체 키로도 불린다.
+>     *   예: 오라클 시퀀스, `auto_increment`, 키 생성 테이블 사용
+>
+> **자연 키보다는 대리 키를 권장한다**
+>
+> 자연 키와 대리 키는 일장일단이 있지만 될 수 있으면 대리 키의 사용을 권장한다. 예를 들어 자연 키인 전화번호를 기본 키로 선택한다면 그 번호가 유일할 수는 있지만, 전화번호가 없거나 변경될 수 있다. 따라서 기본 키로 적당하지 않다. 문제는 주민등록번호처럼 그럴듯하게 보이는 값이다. 이 값은 null이 아니고 유일하며 변하지 않는다는 3가지 조건을 모두 만족하는 것 같지만, 현실과 비즈니스 규칙은 생각보다 쉽게 변한다. 주민등록번호조차도 여러 가지 이유로 변경될 수 있다.
+>
+> **비즈니스 환경은 언젠가 변한다**
+>
+> 기본 키의 조건을 현재는 물론이고 미래까지 충족하는 자연 키를 찾기는 쉽지 않다. 대리 키는 비즈니스와 무관한 임의의 값이므로 요구사항이 변경되어도 기본 키가 변경되는 일은 드물다. 대리 키를 기본 키로 사용하되, 주민등록번호나 이메일처럼 자연 키의 후보가 되는 컬럼들은 필요에 따라 유니크 인덱스를 설정해서 사용하는 것을 권장한다.
+>
+> **JPA는 모든 엔티티에 일관된 방식으로 대리 키 사용을 권장한다**
+>
+> 비즈니스 요구사항은 계속해서 변하는데 테이블은 한 번 정의하면 변경하기 어렵다. 그런 면에서 외부 풍파에 쉽게 흔들리지 않는 대리 키가 일반적으로 좋은 선택이라 생각한다.
+
+> **주의**
+>
+> 기본 키는 변하면 안 된다는 기본 원칙으로 인해, 저장된 엔티티의 기본 키 값은 절대 변경하면 안 된다. 이 경우 JPA는 예외를 발생시키거나 정상 동작하지 않을 수 있다. `setId()` 같이 식별자를 수정하는 메소드를 외부에 공개하지 않는 것도 문제를 예방하는 하나의 방법이 될 수 있다.
