@@ -1,4 +1,6 @@
-package main.java.jpabook.start;
+/*package main.java.jpabook.start;
+
+import jpabook.model.entity.Member;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -55,4 +57,4 @@ public class JpaMain {
         // 삭제
         em.remove(member);
     }
-}
+}*/

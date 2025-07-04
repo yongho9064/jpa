@@ -1,3 +1,4 @@
+/*
 package main.java;
 
 import main.java.jpabook.start.Member;
@@ -61,4 +62,4 @@ public class ExamMergMain {
         em2.close();
         //==영속성 컨텍스트2 종료==//
     }
-}
+}*/
