@@ -81,6 +81,8 @@ private static void queryLogicJoin(EntityManager em) {
 ```
 
 JPQL의 `FROM Member m JOIN m.team t` 부분을 보면, `Member` 엔티티가 `Team` 엔티티와 관계를 맺고 있는 필드(`m.team`)를 통해 조인했다. 그리고 `WHERE` 절에서 조인한 팀의 이름(`t.name`)을 검색 조건으로 사용했다.
+참고로 **`:teamName`과 같이 `:`로 시작하는 것은 파라미터를 바인딩받는 문법이다.**
+
 
 이 JPQL은 다음과 같은 SQL로 변환되어 실행된다.
 
