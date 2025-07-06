@@ -16,8 +16,8 @@ classDiagram
         +String name
         +List<Member> members
     }
-    Member "0..*" -- "1" Team : team
-    Team "1" -- "0..*" Member : members
+    Member "*" <--> "0..1" Team : 
+    
 ```
 
 객체 연관관계에서 회원과 팀은 다대일 관계이고, 반대로 팀에서 회원은 일대다 관계이다. 일대다 관계는 여러 건과 연관관계를 맺을 수 있으므로 컬렉션을 사용해야 한다. 위 다이어그램에서는 `Team.members`를 `List` 컬렉션으로 추가했다.
@@ -43,7 +43,7 @@ erDiagram
         BIGINT TEAM_ID PK
         VARCHAR name
     }
-    MEMBER ||--o{ TEAM : "has"
+    MEMBER ||--o{ TEAM : ""
 ```
 
 `TEAM_ID` 외래 키를 사용해서 `MEMBER JOIN TEAM`이 가능하고, 반대로 `TEAM JOIN MEMBER`도 가능하다.
