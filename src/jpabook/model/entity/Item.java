@@ -5,7 +5,7 @@ import javax.persistence.*;
 @Entity
 public class Item {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "ITEM_ID")
     private Long id;
 

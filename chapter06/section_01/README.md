@@ -103,6 +103,7 @@ public class Team {
 아래 그림에서 실선이 연관관계의 주인(`Member.team`)이고, 점선(`Team.members`)은 연관관계의 주인이 아니다.
 
 **그림 6.2 다대일 양방향**
+
 ![img](https://oopy.lazyrockets.com/api/v2/notion/image?src=https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2F30ed9314-1269-4854-afeb-5f4f6c1c4dcf%2FUntitled.png&blockId=697375cb-d8c8-4d70-85d4-74374eccd405)
 
 **예제 6.3 회원 엔티티 (`Member.java`)**

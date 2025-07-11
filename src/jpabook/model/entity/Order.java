@@ -1,7 +1,5 @@
 package jpabook.model.entity;
 
-import jpabook.model.Member;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,7 +9,7 @@ import java.util.List;
 @Table(name = "ORDERS")
 public class Order {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "ORDER_ID")
     private Long id;
 
@@ -72,6 +70,3 @@ public class Order {
     }
 }
 
-enum OrderStatus {
-    ORDER, CANCEL
-}
