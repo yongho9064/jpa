@@ -62,6 +62,6 @@ public class MemberProductId implements Serializable {
 }
 ```
 
-## @ManyToMany 주의사항
+## @ManyToMany
 * 다대다 관계는 연결 테이블을 JPA가 알아서 처리해주므로 편리하지만 연결 테이블에 필드가 추가되면 더는 사용할 수 없으므로 실무에서 활용하기에는 무리가 있다.
   * 따라서 중간 테이블을 만들어서 1:N, N:1 관계로 풀어내는 것이 좋다.
